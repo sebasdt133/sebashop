@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SebaShop</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="css/estilos.css"/>
+</head>
+<body>
+    <header class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand h1 mb-0" href="#">SebaShop</a>
+            <a href="./html/carrito.html" class="btn btn-outline-light position-relative">
+                🛒 Carrito
+            </a>
+        </div>
+    </header>
+
+    <section class="intro d-flex justify-content-center align-items-center text-white text-center">
+        <h1 class="display-3">Bienvenido a SebaShop</h1>
+    </section>
+    
+    <section class="container my-4" id="contenedor">
+        <h2 class="text-center mb-4">Productos Destacados</h2>
+        <form class="d-flex me-auto ms-auto w-50 align-items-center gap-2">
+            <input 
+                class="form-control me-2" 
+                type="search" 
+                placeholder="Buscar Productos" 
+                v-model="busquedaNombre">
+            <select 
+                class="form-select" 
+                v-model="categoriaSeleccionada">
+                <option value="">Todas las categorías</option>
+                <option v-for="categoria in categorias" :key="categoria" :value="categoria">
+                    {{ categoria }}
+                </option>
+            </select>
+            <button class="btn btn-outline-light" type="button" @click="buscarProductos">Buscar</button>
+        </form>
+        <div class="progress" role="progressbar" aria-label="example with label" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar"
+            :style="{width: porcentajeProgreso + '%'}"
+            :class="color">
+            {{porcentajeProgreso}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 mb-3" v-for="(mueble, index) in productosFiltrados" :key="mueble.id">
+                <div class="card">
+                    <img :src="mueble.image" class="card-img-top" :alt="mueble.name">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ mueble.name }}</h5>
+                        <p class="card-text">Precio: ${{ mueble.price }}</p>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">Categoría: {{ mueble.category }}</li>
+                        <li class="list-group-item">
+                            <button 
+                                type="button" 
+                                class="btn btn-success w-100" 
+                                @click="verDetalles(mueble.id)">
+                                Ver Más
+                            </button>
+                        </li>
+                        <li class="list-group-item">
+                            <button 
+                                type="button" 
+                                class="btn btn-primary w-100" 
+                                @click="agregarAlCarrito(mueble)">
+                                Agregar al Carrito
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer class="bg-dark text-white text-center py-3">
+        <span class="h5">SebaShop - © 2024</span>
+        <div class="d-flex justify-content-center gap-4 mt-2">
+            <a class="text-white text-decoration-none" href="#">Inicio</a>
+            <a class="text-white text-decoration-none" href="#">Términos</a>
+            <a class="text-white text-decoration-none" href="#">Contacto</a>
+        </div>
+    </footer>
+
+    <script src="js/vue3.js"></script>
+    <script src="js/axios.min.js"></script>
+    <script src="js/funciones.js"></script>
+    <script>
+        // Cargar el producto desde localStorage
+        const producto = JSON.parse(localStorage.getItem("productoSeleccionado"));
+
+        if (producto) {
+            const contenedor = document.getElementById("producto-detalle");
+            contenedor.innerHTML = `
+                <div class="card mx-auto" style="width: 18rem;">
+                    <img src="${producto.image}" class="card-img-top" alt="${producto.name}">
+                    <div class="card-body">
+                        <h5 class="card-title">${producto.name}</h5>
+                        <p class="card-text">Categoría: ${producto.category}</p>
+                        <p class="card-text">Descripción: ${producto.description || "Sin descripción disponible."}</p>
+                        <p class="card-text"><strong>Precio:</strong> $${producto.price}</p>
+                    </div>
+                </div>
+            `;
+        } else {
+            console.error("No se encontró información del producto.");
+        }
+    </script>
+</body>
+</html>

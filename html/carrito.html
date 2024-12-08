@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras</title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+    <header class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand h1 mb-0" href="../index.html">SebaShop</a>
+            <span class="text-white">Carrito: {{ totalArticulos }}</span>
+        </div>
+    </header>
+    <main class="container my-5">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Imagen</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th>Importe</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in carrito" :key="item.id">
+                    <td><img :src="item.image" alt="Producto" class="img-thumbnail" style="width: 100px;"></td>
+                    <td>{{ item.name }}</td>
+                    <td>
+                        <button @click="modificarCantidad(item.id, -1)" :disabled="item.cantidad <= 1">-</button>
+                        {{ item.cantidad }}
+                        <button @click="modificarCantidad(item.id, 1)" :disabled="item.cantidad >= 10">+</button>
+                    </td>
+                    <td>{{ item.price }}</td>
+                    <td>{{ (item.cantidad * item.price).toFixed(2) }}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" @click="eliminarArticulo(item.id)">
+                            🗑 Eliminar
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="text-end">
+            <p>Subtotal: ${{ subtotal.toFixed(2) }}</p>
+            <p>IVA (16%): ${{ iva.toFixed(2) }}</p>
+            <p><strong>Total: ${{ total.toFixed(2) }}</strong></p>
+        </div>
+    </main>
+    <footer class="bg-dark text-white text-center py-3">
+        <span class="h5">SebaShop - © 2024</span>
+        <div class="d-flex justify-content-center gap-4 mt-2">
+            <a class="text-white text-decoration-none" href="../index.html">Inicio</a>
+            <a class="text-white text-decoration-none" href="#">Términos</a>
+            <a class="text-white text-decoration-none" href="#">Contacto</a>
+        </div>
+    </footer>
+    <script src="../js/vue3.js"></script>
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    carrito: [],
+                };
+            },
+            computed: {
+                totalArticulos() {
+                    return this.carrito.reduce((total, item) => total + item.cantidad, 0);
+                },
+                subtotal() {
+                    return this.carrito.reduce((total, item) => total + item.price * item.cantidad, 0);
+                },
+                iva() {
+                    return this.subtotal * 0.16;
+                },
+                total() {
+                    return this.subtotal + this.iva;
+                }
+            },
+            methods: {
+                cargarCarrito() {
+    const datos = JSON.parse(localStorage.getItem("carrito")) || [];
+    this.carrito = datos.filter(item =>
+        item.id && item.name && item.price && typeof item.cantidad === 'number'
+    );
+},
+                modificarCantidad(id, cambio) {
+                    const producto = this.carrito.find(item => item.id === id);
+                    if (producto) {
+                        producto.cantidad = Math.min(Math.max(producto.cantidad + cambio, 1), 10);
+                        localStorage.setItem("carrito", JSON.stringify(this.carrito));
+                    }
+                },
+                eliminarArticulo(id) {
+        this.carrito = this.carrito.filter(item => item.id !== id);
+        localStorage.setItem("carrito", JSON.stringify(this.carrito));
+
+        alert("Artículo eliminado del carrito");
+    },
+            },
+            created() {
+                this.cargarCarrito();
+            }
+        });
+        app.mount("body");
+    </script>
+</body>
+</html>
